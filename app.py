@@ -1,28 +1,47 @@
 import streamlit as st
-from supabase import create_client, Client
+import pandas as pd
+from supabase import create_client
 
-# Connexion à Supabase avec service role key
-url: str = st.secrets["SUPABASE_URL"]
-key: str = st.secrets["SUPABASE_KEY"]  # service role key
-supabase: Client = create_client(url, key)
+# Connexion Supabase (service role key)
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+supabase = create_client(url, key)
 
-st.success("✅ Connexion à Supabase réussie!")
+st.title("📋 Gestion des appels à projets ESS")
 
-# --- Ajout d'une entrée ---
-st.write("## ➕ Ajouter une entrée à la table 'test-base'")
-
-nouvelle_valeur = st.text_input("Nom à ajouter")
+# --- Ajouter une entrée ---
+st.subheader("➕ Ajouter un nom")
+nouveau_nom = st.text_input("Nom à ajouter")
 
 if st.button("Ajouter"):
-    if not nouvelle_valeur.strip():
-        st.warning("⚠️ Veuillez entrer un nom valide.")
-    else:
+    if nouveau_nom.strip():
         try:
-            # Insert avec la v2 de supabase-py
-            response = supabase.table("test-base").insert({"name": nouvelle_valeur}).execute()
-            # Si on arrive ici, c'est que l'insertion a fonctionné
-            st.success("✅ Nom ajouté avec succès!")
-            st.write("Détails:", response.data)
+            supabase.table("test-base").insert({"name": nouveau_nom}).execute()
+            st.success("✅ Nom ajouté !")
         except Exception as e:
-            # Toute erreur renvoyée par Supabase sera attrapée ici
-            st.error(f"❌ Exception: {e}")
+            st.error(f"❌ Erreur : {e}")
+    else:
+        st.warning("⚠️ Veuillez entrer un nom valide.")
+
+# --- Récupérer et afficher les données ---
+try:
+    response = supabase.table("test-base").select("*").execute()
+    data = response.data  # liste de dicts
+    df = pd.DataFrame(data)
+
+    if not df.empty:
+        st.subheader("📊 Liste des noms")
+        st.dataframe(df.sort_values(by="name"))
+
+        # --- Télécharger CSV ---
+        csv = df.to_csv(index=False)
+        st.download_button(
+            label="⬇️ Télécharger CSV",
+            data=csv,
+            file_name="test-base.csv",
+            mime="text/csv"
+        )
+    else:
+        st.info("La table est vide.")
+except Exception as e:
+    st.error(f"❌ Impossible de récupérer les données : {e}")
