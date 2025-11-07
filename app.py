@@ -30,7 +30,7 @@ except Exception as e:
     st.stop()
 
 # --- Ajout d'une entrée ---
-st.write("## ➕ Ajouter une entrée à la table 'ma_table'")
+st.write("## ➕ Ajouter une entrée à la table 'test-base'")
 
 # Saisie de l'entrée
 nouvelle_valeur = st.text_input("Texte à ajouter")
@@ -40,8 +40,8 @@ if st.button("Ajouter"):
         st.warning("⚠️ Veuillez entrer un texte valide.")
     else:
         try:
-            # Remplace 'ma_table' par le nom réel de ta table
-            response = supabase.table("ma_table").insert({"texte": nouvelle_valeur}).execute()
+            # Insérer dans la table 'test-base', colonne 'texte'
+            response = supabase.table("test-base").insert({"texte": nouvelle_valeur}).execute()
             
             if response.error:
                 st.error(f"❌ Erreur lors de l'ajout: {response.error.message}")
