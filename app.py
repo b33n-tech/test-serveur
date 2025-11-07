@@ -3,7 +3,7 @@ from supabase import create_client, Client
 
 # Connexion à Supabase avec service role key
 url: str = st.secrets["SUPABASE_URL"]
-key: str = st.secrets["SUPABASE_KEY"]  # <-- service role key
+key: str = st.secrets["SUPABASE_KEY"]  # service role key
 supabase: Client = create_client(url, key)
 
 st.success("✅ Connexion à Supabase réussie!")
@@ -18,13 +18,11 @@ if st.button("Ajouter"):
         st.warning("⚠️ Veuillez entrer un nom valide.")
     else:
         try:
-            # Nouvelle syntaxe supabase-py
+            # Insert avec la v2 de supabase-py
             response = supabase.table("test-base").insert({"name": nouvelle_valeur}).execute()
-            
-            if response.status_code >= 400:
-                st.error(f"❌ Erreur lors de l'ajout: {response.data}")
-            else:
-                st.success("✅ Nom ajouté avec succès!")
-                st.write("Détails:", response.data)
+            # Si on arrive ici, c'est que l'insertion a fonctionné
+            st.success("✅ Nom ajouté avec succès!")
+            st.write("Détails:", response.data)
         except Exception as e:
-            st.error(f"❌ Exception: {str(e)}")
+            # Toute erreur renvoyée par Supabase sera attrapée ici
+            st.error(f"❌ Exception: {e}")
