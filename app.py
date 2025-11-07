@@ -41,7 +41,7 @@ if st.button("Ajouter"):
     else:
         try:
             # Insérer dans la table 'test-base', colonne 'texte'
-            response = supabase.table("test-base").insert({"texte": nouvelle_valeur}).execute()
+            response = supabase.table("test-base").insert({"name": nouvelle_valeur}).execute()
             
             if response.error:
                 st.error(f"❌ Erreur lors de l'ajout: {response.error.message}")
